@@ -3,14 +3,15 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/components/useColorScheme';
+import { useColorScheme } from '@/src/presentation/hooks/useColorScheme';
+import CustomSplashScreen from '@/src/presentation/screens/splash/SplashScreen';
 
 export {
   // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
+  ErrorBoundary
 } from 'expo-router';
 
 export const unstable_settings = {
@@ -26,6 +27,7 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
+  const [isAppReady, setIsAppReady] = useState(false);
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -34,12 +36,17 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
+      // Hide native splash screen immediately to show our custom JS splash
       SplashScreen.hideAsync();
+      // Simulate asset loading
+      setTimeout(() => {
+        setIsAppReady(true);
+      }, 3000);
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
+  if (!loaded || !isAppReady) {
+    return <CustomSplashScreen />;
   }
 
   return <RootLayoutNav />;
